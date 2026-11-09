@@ -980,39 +980,35 @@ on('#bTotalMap', () => {
   msg('Mapa total (norte arriba)');
 });
 
-// Abre el programa de cámara por orden: OpenCamera, NoteCam y cámara por defecto del móvil
-const CAM_INTENTS = [
-  'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=net.sourceforge.opencamera.sas.custom;end',
-  'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=net.sourceforge.opencamera.dev;end',
-  'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.derekr.NoteCam;end',
-  'intent:#Intent;action=android.media.action.IMAGE_CAPTURE;package=com.android.camera;end',
-  'intent:#Intent;action=android.media.action.IMAGE_CAPTURE;package=com.oppo.camera;end',
-  'intent:#Intent;action=android.media.action.IMAGE_CAPTURE;package=com.huawei.camera;end'
-];
+// Abre el clon de OpenCamera (net.sourceforge.opencamera.sas.custom) mediante intent://
+// Requiere que el clon declare en su AndroidManifest:
+//   <intent-filter>
+//     <action android:name="android.intent.action.VIEW" />
+//     <category android:name="android.intent.category.DEFAULT" />
+//     <category android:name="android.intent.category.BROWSABLE" />
+//     <data android:scheme="opencamera" android:host="launch" />
+//   </intent-filter>
+const CAM_INTENT = 'intent://launch/#Intent;package=net.sourceforge.opencamera.sas.custom;scheme=opencamera;end';
 let camBusy = false;
-async function openCameraApp() {
+function openCameraApp() {
   if (camBusy) return;
   camBusy = true;
-  let left = false;
-  const onVis = () => { if (document.hidden) left = true; };
-  const onLeave = () => { left = true; };
-  document.addEventListener('visibilitychange', onVis);
-  window.addEventListener('pagehide', onLeave);
-  window.addEventListener('blur', onLeave);
   try {
-    for (const u of CAM_INTENTS) {
-      left = false;
-      window.location.href = u;
-      await new Promise(r => setTimeout(r, 1200));
-      if (left || document.hidden) return;
-    }
-    msg('No se encontró ninguna aplicación de cámara');
-  } finally {
-    document.removeEventListener('visibilitychange', onVis);
-    window.removeEventListener('pagehide', onLeave);
-    window.removeEventListener('blur', onLeave);
-    camBusy = false;
+    // <a> real + click: más fiable que location.href en Chrome/WebView
+    const a = document.createElement('a');
+    a.href = CAM_INTENT;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (e) {
+    addError('Cámara: ' + e.message);
   }
+  // Liberar el bloqueo al volver a la página
+  const unlock = () => { camBusy = false; };
+  document.addEventListener('visibilitychange', unlock, { once: true });
+  window.addEventListener('pagehide', unlock, { once: true });
+  window.addEventListener('blur', unlock, { once: true });
 }
 
 // Valor de una etiqueta SIGPAC de un elemento (primero las guardadas al importar, luego la descripción)
