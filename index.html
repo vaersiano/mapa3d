@@ -981,14 +981,21 @@ on('#bTotalMap', () => {
 });
 
 // Abre el clon de OpenCamera (net.sourceforge.opencamera.sas.custom) por intent://
-const CAM_INTENT = 'intent://camera#Intent;scheme=opencamera;package=net.sourceforge.opencamera.sas.custom;end';
+// y le envía un texto como query string ?tag=...
+const CAM_PKG = 'net.sourceforge.opencamera.sas.custom';
 let camBusy = false;
-function openCameraApp() {
+function openCameraApp(texto) {
   if (camBusy) return;
   camBusy = true;
+
+  const t = (texto == null ? '' : String(texto)).trim();
+  const q = t ? ('?tag=' + encodeURIComponent(t)) : '';
+  const intentUrl =
+    'intent://camera' + q + '#Intent;scheme=opencamera;package=' + CAM_PKG + ';end';
+
   try {
     const a = document.createElement('a');
-    a.href = CAM_INTENT;
+    a.href = intentUrl;
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
@@ -996,6 +1003,7 @@ function openCameraApp() {
   } catch (e) {
     addError('Cámara: ' + e.message);
   }
+
   const unlock = () => { camBusy = false; };
   document.addEventListener('visibilitychange', unlock, { once: true });
   window.addEventListener('pagehide', unlock, { once: true });
@@ -1061,7 +1069,10 @@ function popup(p, c, f) {
   const camBtn = document.createElement('button');
   camBtn.className = 'camBtn';
   camBtn.textContent = '📷 Cámara';
-  camBtn.onclick = () => { openCameraApp(); };
+  camBtn.onclick = () => {
+  const texto = (props && (tagVal(f, 'REF_SIGPAC') || props.name)) || '';
+  openCameraApp(texto);
+};
   d.append(camBtn);
 
   if (f && (f.geometry.type === 'Polygon' || recinto(f))) {
