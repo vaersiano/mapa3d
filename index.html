@@ -980,21 +980,13 @@ on('#bTotalMap', () => {
   msg('Mapa total (norte arriba)');
 });
 
-// Abre el clon de OpenCamera (net.sourceforge.opencamera.sas.custom) mediante intent://
-// Requiere que el clon declare en su AndroidManifest:
-//   <intent-filter>
-//     <action android:name="android.intent.action.VIEW" />
-//     <category android:name="android.intent.category.DEFAULT" />
-//     <category android:name="android.intent.category.BROWSABLE" />
-//     <data android:scheme="opencamera" android:host="launch" />
-//   </intent-filter>
-const CAM_INTENT = 'intent://launch/#Intent;package=net.sourceforge.opencamera.sas.custom;scheme=opencamera;end';
+// Abre el clon de OpenCamera (net.sourceforge.opencamera.sas.custom) por intent://
+const CAM_INTENT = 'intent://camera#Intent;scheme=opencamera;package=net.sourceforge.opencamera.sas.custom;end';
 let camBusy = false;
 function openCameraApp() {
   if (camBusy) return;
   camBusy = true;
   try {
-    // <a> real + click: más fiable que location.href en Chrome/WebView
     const a = document.createElement('a');
     a.href = CAM_INTENT;
     a.style.display = 'none';
@@ -1004,7 +996,6 @@ function openCameraApp() {
   } catch (e) {
     addError('Cámara: ' + e.message);
   }
-  // Liberar el bloqueo al volver a la página
   const unlock = () => { camBusy = false; };
   document.addEventListener('visibilitychange', unlock, { once: true });
   window.addEventListener('pagehide', unlock, { once: true });
