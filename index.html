@@ -989,9 +989,10 @@ function openCameraApp(texto) {
   camBusy = true;
 
   const t = (texto == null ? '' : String(texto)).trim();
-   const q = t ? ('?tag=' + encodeURIComponent(t)) : '';
-  // Usar esquema directo para apertura inmediata + pase de texto
-  const intentUrl = 'opencamera://camera' + q;
+  
+  // Sintaxis oficial de Chrome Intent pasando el texto como Extra (S.tag)
+  const intentUrl =
+    'intent://#Intent;scheme=opencamera;package=' + CAM_PKG + ';S.tag=' + encodeURIComponent(t) + ';end';
 
   try {
     const a = document.createElement('a');
