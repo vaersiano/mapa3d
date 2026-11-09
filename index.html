@@ -990,8 +990,8 @@ function openCameraApp(texto) {
 
   const t = (texto == null ? '' : String(texto)).trim();
   const q = t ? ('?tag=' + encodeURIComponent(t)) : '';
-  const intentUrl =
-    'intent://camera' + q + '#Intent;scheme=opencamera;package=' + CAM_PKG + ';end';
+   const intentUrl =
+    'intent://camera' + q + '#Intent;scheme=opencamera;package=' + CAM_PKG + ';action=android.intent.action.VIEW;end';
 
   try {
     const a = document.createElement('a');
