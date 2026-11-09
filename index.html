@@ -984,32 +984,25 @@ on('#bTotalMap', () => {
 // y le envía el texto como query string ?tag=...
 const CAM_PKG = 'net.sourceforge.opencamera.sas.custom';
 let camBusy = false;
-
 function openCameraApp(texto) {
   if (camBusy) return;
   camBusy = true;
 
   const t = (texto == null ? '' : String(texto)).trim();
   const q = t ? ('?tag=' + encodeURIComponent(t)) : '';
-  
-  // URL de fallback (por si la app no estuviera instalada, recarga la página actual)
-  const fallbackUrl = encodeURIComponent(window.location.href);
-
-  // Sintaxis completa con acción VIEW y fallback para que Chrome no bloquee la redirección
   const intentUrl =
-    'intent://camera' + q + '#Intent;scheme=opencamera;package=' + CAM_PKG + ';action=android.intent.action.VIEW;s.browser_fallback_url=' + fallbackUrl + ';end';
+    'intent://camera' + q + '#Intent;scheme=opencamera;package=' + CAM_PKG + ';end';
 
   try {
-    // Asignación directa a location.href (evita el bloqueo de .click() en Chrome)
-    window.location.href = intentUrl;
+    const a = document.createElement('a');
+    a.href = intentUrl;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   } catch (e) {
     addError('Cámara: ' + e.message);
-    camBusy = false;
   }
-
-  // Desbloqueo tras un breve retardo por si el usuario vuelve atrás
-  setTimeout(() => { camBusy = false; }, 2000);
-}
 
   const unlock = () => { camBusy = false; };
   document.addEventListener('visibilitychange', unlock, { once: true });
