@@ -981,7 +981,7 @@ on('#bTotalMap', () => {
 });
 
 // Abre el clon de OpenCamera (net.sourceforge.opencamera.sas.custom) por intent://
-// y le envía un texto como query string ?tag=...
+// y le envía el texto como query string ?tag=...
 const CAM_PKG = 'net.sourceforge.opencamera.sas.custom';
 let camBusy = false;
 function openCameraApp(texto) {
@@ -989,10 +989,9 @@ function openCameraApp(texto) {
   camBusy = true;
 
   const t = (texto == null ? '' : String(texto)).trim();
-  
-  // Sintaxis oficial de Chrome Intent pasando el texto como Extra (S.tag)
+  const q = t ? ('?tag=' + encodeURIComponent(t)) : '';
   const intentUrl =
-    'intent://#Intent;scheme=opencamera;package=' + CAM_PKG + ';S.tag=' + encodeURIComponent(t) + ';end';
+    'intent://camera' + q + '#Intent;scheme=opencamera;package=' + CAM_PKG + ';end';
 
   try {
     const a = document.createElement('a');
